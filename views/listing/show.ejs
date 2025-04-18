@@ -1,0 +1,26 @@
+<% layout("/layout/boilerplate") -%>
+<body>
+    <h3>show all detail of this listing</h3>
+    <div>
+    <img src="<%= listing.image.url %>" class="card-img-top"  style="height: 22rem;" alt="listing_image">
+    </div>
+    
+    <ul>
+        <li>title : <b><%= listing.title %></b></li>
+        <li>description : <%= listing.description %></li>
+        <li>price : &#8377;<%= listing.price.toLocaleString("en-IN") %></li>
+        <li>location : <%= listing.location %></li>
+        <li>country : <%= listing.country %></li>
+
+        
+    </ul>
+    <br/>
+    <br/>
+    <form method="GET" action="/listing/<%= listing.id %>/edit">
+        <button class="btn btn-success">edit!</button>
+    </form>
+    <br/> <br/>
+    <form method="POST" action="/listing/<%= listing.id %>?_method=DELETE">
+    <button class="btn btn-danger">delete</button>
+    </form>
+</body> 
