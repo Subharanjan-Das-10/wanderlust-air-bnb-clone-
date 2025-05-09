@@ -44,10 +44,12 @@ app.all(/.*/, (req, res, next) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  let { statusCode = 500, message = "Something went wrong" } = err;
-  res.status(statusCode).render("./listing/error.ejs", { statusCode, message });//res.status(statusCode).send(message)
-});
+
+app.use((err,req,res,next)=>{
+  let {statusCode=500,message="something went wrong!"}=err;
+  res.status(statusCode).render("listing/error.ejs",{err})
+  })
+
 // Start server
 app.listen(8080, () => {
   console.log("Server is listening on port 8080");
