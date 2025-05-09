@@ -1,104 +1,54 @@
-const express = require ("express");
+const express = require("express");
 const app = express();
-const mongoose = require ("mongoose");
-const Listing = require("./models/listing.js");
+const mongoose = require("mongoose");
 const path = require("path");
-const  methodOverride = require("method-override");
-const { console } = require("inspector");
-const ejsMate = require("ejs-mate"); //use for ejs template
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const expressError = require("./utils/expressError.js");
+const listings = require("./router/listing.js");
+const reviews = require("./router/reviews.js");
 
-
-
+// Connect to MongoDB
 main()
-.then(() =>{
-console.log("connecting to db");
-}).catch((err) =>{
+  .then(() => {
+    console.log("Connected to DB");
+  })
+  .catch((err) => {
     console.log(err);
-});
+  });
 
 async function main() {
-    await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
-  };
+  await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+}
 
-  app.set ("view engine","ejs");
-  app.set ("views", path.join(__dirname, "views"));
-  app.use("/public", express.static("public"));
-  app.use (express.urlencoded ({extended : true}));//fllowing all data are pass by this code
-  app.use(methodOverride("_method"));
-  app.engine("ejs", ejsMate);  //use ejs
-
-
-app.get ("/",(req,res) =>{
-    res.send("hi i am root");
-});
-
-//index route
-
-app.get ("/listing", async(req,res) =>{
-    const allListing = await Listing.find({});
-    res.render("./listing/index.ejs",{allListing});
-
-});
-
-app.get("/listing/new", (req,res)=>{
-     res.render("./listing/new.ejs");
- });
-//show route
-app.get("/listing/:id", async(req,res) =>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    res.render("./listing/show.ejs",{listing});
-});
-
-//create route
-app.post("/listing",async(req,res) =>{
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listing");
-});
-
-//edit route 
-
-app.get("/listing/:id/edit",async(req,res)=>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    res.render("./listing/edit.ejs",{listing});
-});
-
-//update route
-app.put("/listing/:id", async(req,res)=>{
-    let {id} = req.params;
-  await  Listing.findByIdAndUpdate(id,{...req.body.listing}); //reconstract using this fomat
-  res.redirect("/listing");
-});
-
-//delete route
-
-app.delete("/listing/:id",async(req,res)=>{
-    let {id} = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listing");
-
+// Set view engine and middleware
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.engine("ejs", ejsMate);
+// Root route
+app.get("/", (req, res) => {
+  res.send("hi i am root");
 });
 
 
 
-// app.get ("/testListing", async (req,res) =>{
-//     let sampleListing = new Listing ({
-//         title : "my home",
-//         description : "by the beach",
-//         price : 1200,
-//         location : "kolkata",
-//         country : "india",
-//     });
-//     await sampleListing.save();
-//     console.log("data was saved");
-//     res.send ("successfull");
+app.use("/listing",listings);  //its using for using listing.js
+app.use("/listings/:id/reviews",reviews);
 
-// });
+// 404 handler
+app.all(/.*/, (req, res, next) => {
+  next(new expressError(404, "Page not found"));
+});
 
-
-app.listen (8080,()=>{
-    console.log("server is listing to port 8080");
+// Error handling middleware
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Something went wrong" } = err;
+  res.status(statusCode).render("./listing/error.ejs", { statusCode, message });//res.status(statusCode).send(message)
+});
+// Start server
+app.listen(8080, () => {
+  console.log("Server is listening on port 8080");
 });
