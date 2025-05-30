@@ -21,6 +21,10 @@ body{
     color: black;
 }
 
+.container{
+    flex:1
+}
+
 .f-info-social{
     width: 100%;
     font-size: 2 rem;
