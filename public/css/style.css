@@ -85,3 +85,13 @@ ul li {
     margin-bottom: auto;
     background-color: aqua;
 }
+
+
+/* map */
+
+#map {
+  height: 400px;
+  width: 600px;
+  border: 1px solid black;
+}
+

@@ -31,19 +31,13 @@ const listingSchema = Joi.object({
       .max(100)
       .required(),
 
-    image: Joi.object({
-      url: Joi.string()
-        .uri()
-        .required()
-        .messages({
-          'string.uri': 'Image must be a valid URL',
-        })
-    }).required(),
+    image:Joi.string().allow("",null),
+
 
     price: Joi.number()
       .min(0)
       .required()
-  }).required()
+  })
 });
 const reviewSchema = Joi.object({
   review: Joi.object({
